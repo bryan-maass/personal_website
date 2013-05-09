@@ -11,6 +11,11 @@ document.body.appendChild(c);
 var wind = 0
 var FPS = 60
 
+var resize_canvas = function(){
+  c.width = window.innerWidth
+  c.height = window.innerHeight
+}
+
 var keysDown = {};
 addEventListener("keydown", function (e) {
     keysDown[e.keyCode] = true;
@@ -28,13 +33,19 @@ var Clear = function(){
     ctx.fill();
 }
 
-var howManyCircles = 300, circles = [];
-var left_arrow = 37
-var right_arrrow = 39
+var howManyCircles = 150, circles = [];
+var left_arrow = 39
+var right_arrrow = 37
+
+var make_circle = function(){
+        return [Math.random() * c.width,
+                Math.random() * c.height,
+                Math.random() * 10,
+                Math.random() ]
+}
 
 for (var i = 0; i < howManyCircles; i++)
-    circles.push([Math.random() * c.width, Math.random() * c.height,
-                  Math.random() * 10, Math.random() ]);
+    circles.push(make_circle());
 //circle[x, y, r, alpha]
 //TODO: make objects
 
@@ -52,16 +63,14 @@ var DrawCircles = function(){
 var MoveCircles = function(x){
     for (var i = 0; i < howManyCircles; i++){
         if (circles[i][1] - circles[i][2] > c.height){
-            circles[i][0] = Math.random() * c.width;
-            circles[i][2] = Math.random() * 10;
-            circles[i][1] = -circles[i][2];
-            circles[i][3] = Math.random();
+            circles[i] = make_circle();
+            circles[i][1] = -10
         }
         else if(circles[i][0] - circles[i][2] > c.width){
-            circles[i][0] = -circles[i][3]
+            circles[i][0] = -2 * circles[i][3]
         }
         else if(circles[i][0] - circles[i][2] < -circles[i][3] - 20){
-            circles[i][0] = c.width + circles[i][3]
+            circles[i][0] = c.width + 2 * circles[i][3]
         }
         else{
             circles[i][1] += 2;
@@ -72,12 +81,10 @@ var MoveCircles = function(x){
 }
 
 var ModifyWind = function(){
-    if (left_arrow in keysDown) { // Player holding left
+    if (left_arrow in keysDown) // Player holding left
         wind += 1;
-    }
-    else if (right_arrrow in keysDown) { // Player holding right
+    else if (right_arrrow in keysDown) // Player holding right
         wind -= 1;
-    }
     else
         wind -= wind/30
 }
