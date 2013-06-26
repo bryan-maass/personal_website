@@ -4,11 +4,19 @@
 var width = 1900
 var height = 1080
 
+var touch_on = false
 var c = document.createElement("canvas");
 var ctx = c.getContext('2d');
 c.width = width;
 c.height = height;
 document.body.appendChild(c);
+c.addEventListener("touchstart", function(){
+  touch_on = true;
+})
+c.addEventListener("touchend", function(){
+  touch_on = false;
+})
+
 
 var FPS = 60
 var spacebar = 32 // spacebar keycode
@@ -135,7 +143,7 @@ function record(){
 function game_loop(){
   clear();
   print_dice();
-  if (spacebar in keys_down){ //rolling mode
+  if (spacebar in keys_down || touch_on){ //rolling mode
     roll();
     rolling = true;
   }

@@ -1,23 +1,28 @@
 // Bryan Maass
 
-var width = 1000
-var height = 500
-var c = document.createElement("canvas");
-var ctx = c.getContext('2d');
-c.width = width;
-c.height = height;
+var howManyCircles = 0,
+    circles = [],
+    left_arrow = 39,
+    right_arrrow = 37,
+    shuffled = false,
+    keyHit = false,
+    wind = 0,
+    FPS = 60,
+    c = document.createElement("canvas"),
+    ctx = c.getContext('2d');
+
+ctx.globalCompositeOperation = 'destination-atop';
 document.body.appendChild(c);
 
-var wind = 0
-var FPS = 60
-
-var resize_canvas = function(){
-  c.width = window.innerWidth
-  c.height = window.innerHeight
+function resizeCanvas(){
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+    shuffle();
 }
 
 var keysDown = {};
 addEventListener("keydown", function (e) {
+    keyHit = true;
     keysDown[e.keyCode] = true;
 }, false);
 
@@ -25,7 +30,7 @@ addEventListener("keyup", function (e) {
     delete keysDown[e.keyCode];
 }, false);
 
-var Clear = function(){
+function clearAll(){
     ctx.fillStyle = '#d0E7F9';
     ctx.beginPath();
     ctx.rect(0, 0, c.width, c.height);
@@ -33,68 +38,100 @@ var Clear = function(){
     ctx.fill();
 }
 
-var howManyCircles = 150, circles = [];
-var left_arrow = 39
-var right_arrrow = 37
-
-var make_circle = function(){
-        return [Math.random() * c.width,
-                Math.random() * c.height,
-                Math.random() * 10,
-                Math.random() ]
+function makeCircle(){
+    return {x: Math.random() * c.width,
+            y: Math.random() * c.height,
+            r: 5 + Math.random() * 10,
+            dy: 5,
+            alpha: Math.random()};
 }
 
-for (var i = 0; i < howManyCircles; i++)
-    circles.push(make_circle());
-//circle[x, y, r, alpha]
-//TODO: make objects
+function shuffle(){
+    howManyCircles = c.width * c.height / 2000;
+    if (circles.length === 0){
+        for (var i = 0; i < howManyCircles; i++)
+            circles.push(makeCircle());
+    }
+    else
+        for (var k = 0; k < howManyCircles; k++)
+            circles[k] = makeCircle();
+}
 
-var DrawCircles = function(){
+function drawCircles(){
     for (var i = 0; i < howManyCircles; i++){
         cur_circle = circles[i];
-        ctx.fillStyle = 'rgba(255, 255, 255, ' + cur_circle[3] + ')';
+        ctx.fillStyle = 'rgba(255, 255, 255, ' + cur_circle.alpha + ')';
         ctx.beginPath();
-        ctx.arc(cur_circle[0], cur_circle[1], cur_circle[2], 0, Math.PI * 2, true);
+        ctx.arc(cur_circle.x, cur_circle.y, cur_circle.r, 0, Math.PI * 2, true);
         ctx.closePath();
         ctx.fill();
     }
 }
 
-var MoveCircles = function(x){
+function moveCircles(){
     for (var i = 0; i < howManyCircles; i++){
-        if (circles[i][1] - circles[i][2] > c.height){
-            circles[i] = make_circle();
-            circles[i][1] = -10
+        var circ = circles[i];
+        var side = circ.x - circ.r;
+        if (circ.y - circ.r > c.height){ //fell off
+            circles[i] = makeCircle();
+            circles[i].y = -circles[i].r;
         }
-        else if(circles[i][0] - circles[i][2] > c.width){
-            circles[i][0] = -2 * circles[i][3]
+        else if(side > c.width){
+            circ.x = -2 * circ.r;
         }
-        else if(circles[i][0] - circles[i][2] < -circles[i][3] - 20){
-            circles[i][0] = c.width + 2 * circles[i][3]
+        else if(side < -3 * circ.r){
+            circ.x = c.width;
         }
         else{
-            circles[i][1] += 2;
-            circles[i][0] += Math.random() * wind;
+            circ.y += circ.dy;
+            circ.x += Math.random() * wind;
         }
-
     }
 }
 
-var ModifyWind = function(){
+function modifyWind(){
     if (left_arrow in keysDown) // Player holding left
         wind += 1;
     else if (right_arrrow in keysDown) // Player holding right
         wind -= 1;
     else
-        wind -= wind/30
+        wind -= wind/30;
 }
 
-var GameLoop = function(){
-  Clear();
-  DrawCircles();
-  ModifyWind();
-  MoveCircles(10);
-  gLoop = setTimeout(GameLoop, 1000 / FPS);
+function tutorial(){
+    // clearAll();
+    if(!shuffled){
+        shuffled = true;
+        shuffle();
+    }
+
+    clearAll();
+    drawCircles();
+
+    ctx.beginPath();
+    ctx.rect(0, 0, c.width, c.height);
+    ctx.fillStyle = 'rgba(124, 138, 149, .5)';
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = 'rgb(255, 255, 255)';
+    ctx.font = "bold 24px sans-serif";
+    ctx.fillText("Press Left or Right to change the wind!", (c.width-500)/2, c.height/2);
 }
 
-GameLoop();
+function gameLoop(){
+    if (!keyHit){
+    tutorial();
+    }
+    else{
+        clearAll();
+        modifyWind();
+        drawCircles();
+        moveCircles();
+    }
+    gLoop = setTimeout(gameLoop, 1000 / FPS);
+}
+
+resizeCanvas();
+tutorial();
+gameLoop();

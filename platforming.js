@@ -72,7 +72,7 @@ var reset = function () {
     hero.y = 0;
 
     // Throw the monster somewhere on the screen randomly
-    monster.x = 32 + (Math.random() * (canvas.width - 64));
+    monster.x = (Math.random() * (canvas.width - 64));
     monster.y = canvas.height - 64
     hero.on_ground = false
 };
