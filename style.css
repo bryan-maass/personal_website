@@ -1,0 +1,40 @@
+link {
+    text-align: center;
+    font-size: 30px;
+    line-height: 220%;
+
+}
+
+h1 {
+    color: #3E5363;
+    font-size: 150px;
+    text-align: center;
+}
+
+a {
+    font-size: 30px;
+    color: #304251;
+    padding-left: 50px;
+    padding-right: 50px;
+    text-decoration: none;
+}
+
+body {
+    background-color: #B8CEE0;
+    font-family: 'Titillium Web', Helvetica, Arial, sans-serif;
+    height: 100%;
+    padding-bottom: 30px;
+}
+
+footer {
+    color: #6A7483;
+    bottom: 0;
+    position: absolute;
+    height: 30px;
+}
+
+.nav {
+    text-align: center;
+    margin-top: 74px;
+    padding: 10px;
+}
